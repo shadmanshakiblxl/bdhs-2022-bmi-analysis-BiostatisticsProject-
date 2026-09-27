@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socio-Demographic Determinants of BMI in Bangladesh | BDHS 2022</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- MathJax v3 for LaTeX Math Rendering -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        obsidian: {
+                            DEFAULT: '#0B132B',
+                            light: '#1C2541',
+                            accent: '#3A506B',
+                            highlight: '#48CAE4',
+                            emerald: '#10B981',
+                            rose: '#F43F5E'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FFFFFF;
+            color: #0B132B;
+            overflow-x: hidden;
+        }
+
+        /* Reveal & Stagger Animations */
+        .reveal {
+            opacity: 0;
+            transform: translateY(32px);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: opacity, transform;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Staggered Delay Helpers */
+        .delay-100 { transition-delay: 100ms; }
+        .delay-200 { transition-delay: 200ms; }
+        .delay-300 { transition-delay: 300ms; }
+        .delay-400 { transition-delay: 400ms; }
+        .delay-500 { transition-delay: 500ms; }
+
+        /* Custom minimal scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #FFFFFF;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1C2541;
+            border-radius: 3px;
+        }
+
+        /* MathJax override tweaks for seamless layout */
+        .mjx-chtml {
+            font-size: 105% !important;
+            color: inherit !important;
+        }
+
+        /* Glassmorphism styling */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(229, 231, 235, 0.8);
+        }
+
+        .glass-dark {
+            background: rgba(11, 19, 43, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-obsidian-light selection:text-white">
+
+    <!-- Navigation Bar -->
+    <nav id="navbar" class="fixed top-0 left-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8 py-4 flex justify-between items-center">
+            <a href="#" class="flex items-center space-x-3">
+                <span class="w-2.5 h-2.5 rounded-full bg-obsidian-highlight animate-pulse"></span>
+                <span class="text-xs tracking-[0.25em] font-semibold uppercase text-obsidian">BRAC University | BTE317</span>
+            </a>
+            <div class="hidden md:flex space-x-8 text-xs font-medium tracking-widest uppercase text-obsidian-accent">
+                <a href="#abstract" class="hover:text-obsidian transition-colors">Overview</a>
+                <a href="#metrics" class="hover:text-obsidian transition-colors">Metrics</a>
+                <a href="#determinants" class="hover:text-obsidian transition-colors">Determinants</a>
+                <a href="#simulator" class="hover:text-obsidian transition-colors">Simulator</a>
+                <a href="#regression" class="hover:text-obsidian transition-colors">Regression</a>
+                <a href="#recommendations" class="hover:text-obsidian transition-colors">Policy</a>
+            </div>
+            <button onclick="toggleCiteModal()" class="inline-flex items-center text-xs font-medium uppercase tracking-wider text-obsidian border border-obsidian/30 px-3.5 py-1.5 rounded-full hover:bg-obsidian hover:text-white transition-all">
+                <i data-lucide="quote" class="w-3.5 h-3.5 mr-1.5"></i> Cite Study
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="min-h-screen pt-24 pb-16 flex flex-col justify-center items-center relative px-6 text-center bg-gradient-to-b from-white via-slate-50/50 to-gray-100/60">
+        <div class="max-w-5xl mx-auto space-y-8">
+            <div class="reveal active inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200">
+                <span class="text-[11px] font-mono tracking-wider uppercase text-obsidian-accent">Statistical Analysis • BDHS 2022</span>
+                <span class="text-gray-300">•</span>
+                <span class="text-[11px] font-semibold text-obsidian">$N = 9,946$ Respondents</span>
+            </div>
+
+            <h1 class="reveal active delay-100 text-3xl sm:text-5xl lg:text-6xl font-light tracking-tight leading-tight text-obsidian max-w-4xl mx-auto">
+                Nutritional Status & Socio-Demographic Determinants of Body Mass Index in Bangladesh
+            </h1>
+
+            <p class="reveal active delay-200 text-sm md:text-base font-light text-gray-600 max-w-2xl mx-auto tracking-wide leading-relaxed">
+                A quantitative bio-statistical investigation by <span class="text-obsidian font-semibold border-b border-obsidian/30">Shadman Shakib</span> examining economic, geographic, and educational drivers of national health transitions
+                <button onclick="openCitationTooltip(event)" class="inline-flex items-center justify-center text-[10px] bg-obsidian-light text-white rounded-full w-5 h-5 ml-1 font-mono font-bold hover:bg-obsidian-highlight transition-colors" title="View Source Citation">1</button>.
+            </p>
+
+            <!-- Quick Key Indicators Bar -->
+            <div class="reveal active delay-300 pt-4 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto text-left">
+                <div class="p-4 bg-white/80 rounded-xl border border-gray-200 shadow-sm">
+                    <p class="text-[11px] uppercase tracking-wider text-gray-500">Sample Size</p>
+                    <p class="text-2xl font-semibold text-obsidian mt-0.5"><span class="counter" data-target="9946">0</span></p>
+                    <p class="text-[10px] text-gray-400 mt-1">Weighted BDHS 2022 sample</p>
+                </div>
+                <div class="p-4 bg-white/80 rounded-xl border border-gray-200 shadow-sm">
+                    <p class="text-[11px] uppercase tracking-wider text-gray-500">At-Risk Population</p>
+                    <p class="text-2xl font-semibold text-obsidian-rose mt-0.5"><span class="counter-float" data-target="46.8">0</span>%</p>
+                    <p class="text-[10px] text-gray-400 mt-1">Under- or Overweight</p>
+                </div>
+                <div class="p-4 bg-white/80 rounded-xl border border-gray-200 shadow-sm">
+                    <p class="text-[11px] uppercase tracking-wider text-gray-500">Mean BMI</p>
+                    <p class="text-2xl font-semibold text-obsidian mt-0.5"><span class="counter-float" data-target="23.84">0</span></p>
+                    <p class="text-[10px] text-gray-400 mt-1">$\text{kg/m}^2$ (SD: $4.32$)</p>
+                </div>
+                <div class="p-4 bg-white/80 rounded-xl border border-gray-200 shadow-sm">
+                    <p class="text-[11px] uppercase tracking-wider text-gray-500">Age Range</p>
+                    <p class="text-2xl font-semibold text-obsidian mt-0.5">15–49 <span class="text-xs font-normal text-gray-500">yrs</span></p>
+                    <p class="text-[10px] text-gray-400 mt-1">Mean age: $32.06$ yrs</p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="reveal active delay-400 pt-6 flex flex-col sm:flex-row justify-center items-center gap-4">
+                <a href="https://drive.google.com/file/d/1qNFAFP3UEeqdOSpW6kS-6rKmXWBlcBPf/view?usp=sharing" 
+                   target="_blank" 
+                   class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 bg-obsidian text-white text-xs tracking-widest uppercase font-medium rounded-lg shadow-lg hover:bg-obsidian-light transition-all transform hover:-translate-y-0.5">
+                    <span>Read Full Paper</span>
+                    <i data-lucide="file-text" class="w-4 h-4 ml-2"></i>
+                </a>
+                <a href="#simulator" 
+                   class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 border border-obsidian/30 text-obsidian hover:bg-obsidian hover:text-white text-xs tracking-widest uppercase font-medium rounded-lg transition-all">
+                    <span>Interactive Predictor</span>
+                    <i data-lucide="sliders" class="w-4 h-4 ml-2"></i>
+                </a>
+                <a href="https://dhsprogram.com/pubs/pdf/FR386/FR386.pdf" 
+                   target="_blank" 
+                   class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 text-obsidian-accent hover:text-obsidian text-xs tracking-widest uppercase font-medium transition-colors">
+                    <span>BDHS Databank</span>
+                    <i data-lucide="external-link" class="w-4 h-4 ml-1.5"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="mt-16 animate-bounce opacity-40">
+            <a href="#abstract" aria-label="Scroll to Executive Overview">
+                <i data-lucide="chevron-down" class="w-6 h-6 text-obsidian"></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- Abstract & Core Problem Section -->
+    <section id="abstract" class="py-28 px-6 lg:px-8 max-w-6xl mx-auto border-t border-gray-100">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-16 items-start">
+            <div class="md:col-span-4 space-y-4">
+                <span class="reveal text-xs tracking-[0.3em] font-semibold uppercase text-obsidian-accent block">01 / Executive Overview</span>
+                <h2 class="reveal delay-100 text-2xl sm:text-3xl font-light text-obsidian tracking-wide leading-snug">
+                    The Dual Burden of Nutritional Transition
+                </h2>
+                <div class="reveal delay-200 p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
+                    <p class="text-xs font-mono text-obsidian-accent uppercase font-semibold">Key Research Premise</p>
+                    <p class="text-xs text-gray-600 leading-relaxed font-light">
+                        Body Mass Index ($\text{BMI}$) reflects the complex intersection between macroeconomic development, food security, and urban lifestyle shifts in South Asia.
+                    </p>
+                </div>
+            </div>
+
+            <div class="md:col-span-8 space-y-6 text-gray-600 font-light leading-relaxed text-sm sm:text-base">
+                <p class="reveal">
+                    Body Mass Index serves as a fundamental metric for assessing population-level health transitions in developing economies. Utilizing nationally representative secondary data from the <strong class="text-obsidian font-semibold">Bangladesh Demographic and Health Survey (BDHS) 2022</strong>, this empirical study evaluates how macro-level socio-demographic drivers systematically shape body mass profiles among adults aged 15–49 years
+                    <button onclick="openCitationTooltip(event)" class="inline-flex items-center justify-center text-[10px] bg-slate-200 text-obsidian rounded-full w-4 h-4 ml-0.5 font-mono font-bold">1</button>.
+                </p>
+                
+                <p class="reveal delay-100">
+                    Out of the total weighted sample of <span class="text-obsidian font-semibold underline decoration-obsidian-highlight decoration-2">$N = 9,946$ respondents</span>, <strong class="text-obsidian font-medium">53.2% maintained a Normal BMI</strong> ($18.5 \le \text{BMI} \le 24.9 \, \text{kg/m}^2$), whereas <strong class="text-obsidian-rose font-semibold">46.8% exhibited heightened nutritional risk</strong> (falling into either underweight or overweight/obese classifications)
+                    <button onclick="openCitationTooltip(event)" class="inline-flex items-center justify-center text-[10px] bg-slate-200 text-obsidian rounded-full w-4 h-4 ml-0.5 font-mono font-bold">1</button>.
+                </p>
+
+                <div class="reveal delay-200 grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                    <div class="p-4 rounded-lg bg-emerald-50/60 border border-emerald-100 space-y-1">
+                        <div class="flex items-center space-x-2 text-emerald-700 font-semibold text-xs uppercase tracking-wider">
+                            <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                            <span>Normal BMI Cohort</span>
+                        </div>
+                        <p class="text-2xl font-bold text-emerald-800">53.2% <span class="text-xs font-normal text-emerald-600">($n = 5,291$)</span></p>
+                        <p class="text-[11px] text-emerald-700 font-light">Healthy weight range baseline</p>
+                    </div>
+                    <div class="p-4 rounded-lg bg-rose-50/60 border border-rose-100 space-y-1">
+                        <div class="flex items-center space-x-2 text-rose-700 font-semibold text-xs uppercase tracking-wider">
+                            <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                            <span>Nutritional Risk Cohort</span>
+                        </div>
+                        <p class="text-2xl font-bold text-rose-800">46.8% <span class="text-xs font-normal text-rose-600">($n = 4,655$)</span></p>
+                        <p class="text-[11px] text-rose-700 font-light">Underweight &amp; Overweight/Obese combined</p>
+                    </div>
+                </div>
+
+                <p class="reveal delay-300">
+                    Bivariate hypothesis testing ($\alpha = 0.05$) demonstrates that structural socioeconomic drivers—specifically <strong class="text-obsidian font-medium">Wealth Index Quintiles</strong> ($\chi^2 = 168.099, p < 0.001$), <strong class="text-obsidian font-medium">Type of Residence</strong> ($\chi^2 = 67.738, p < 0.001$), and <strong class="text-obsidian font-medium">Educational Attainment</strong> ($\chi^2 = 24.949, p < 0.001$)—act as the principal determinants of body mass outcomes, vastly outperforming household headship sex or working status
+                    <button onclick="openCitationTooltip(event)" class="inline-flex items-center justify-center text-[10px] bg-slate-200 text-obsidian rounded-full w-4 h-4 ml-0.5 font-mono font-bold">1</button>.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dynamic Chi-Square & Sample Metrics -->
+    <section id="metrics" class="py-28 px-6 lg:px-8 bg-obsidian text-white relative">
+        <div class="max-w-6xl mx-auto space-y-16">
+            <div class="space-y-4 text-center md:text-left">
+                <span class="reveal text-xs tracking-[0.3em] font-semibold uppercase text-obsidian-highlight block">02 / Empirical Metrics</span>
+                <h2 class="reveal delay-100 text-3xl sm:text-4xl font-extralight tracking-tight">Interactive Pearson $\chi^2$ Test Viewer</h2>
+                <p class="reveal delay-200 text-xs sm:text-sm text-gray-400 max-w-2xl font-light">
+                    Select a socio-demographic factor below to examine cross-tabulation percentages and test statistics evaluated against respondent BMI status ($\alpha = 0.05$)
+                    <button onclick="openCitationTooltip(event)" class="inline-flex items-center justify-center text-[10px] bg-white/20 text-white rounded-full w-4 h-4 ml-1 font-mono">1</button>.
+                </p>
+            </div>
+
+            <!-- Interactive Chart Control Panel -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center border-t border-white/10 pt-10">
+                <div class="lg:col-span-5 space-y-6">
+                    <div class="reveal space-y-3">
+                        <label class="text-xs uppercase tracking-widest text-gray-400 font-mono block">Select Predictor Variable</label>
+                        <div class="flex flex-wrap gap-2" id="chartSelector">
+                            <button onclick="updateChart('wealth', this)" class="px-4 py-2.5 text-xs rounded-lg border border-obsidian-highlight bg-obsidian-highlight/10 text-obsidian-highlight font-medium uppercase tracking-wider transition-all duration-300 active-btn">
+                                Wealth Index
+                            </button>
+                            <button onclick="updateChart('residence', this)" class="px-4 py-2.5 text-xs rounded-lg border border-white/20 text-gray-300 font-medium uppercase tracking-wider hover:border-white hover:text-white transition-all duration-300">
+                                Residence
+                            </button>
+                            <button onclick="updateChart('education', this)" class="px-4 py-2.5 text-xs rounded-lg border border-white/20 text-gray-300 font-medium uppercase tracking-wider hover:border-white hover:text-white transition-all duration-300">
+                                Education
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Live Statistical Summary Panel -->
+                    <div id="chartStatsBox" class="reveal delay-200 p-5 rounded-xl bg-white/5 border border-white/10 space-y-3 text-xs">
+                        <div class="flex justify-between items-center border-b border-white/10 pb-2">
+                            <span class="text-gray-400 uppercase tracking-wider text-[10px] font-mono">Statistical Test</span>
+                            <span id="statName" class="text-white font-semibold">Pearson Chi-Square ($\chi^2$)</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 pt-1">
+                            <div>
+                                <p class="text-gray-400 text-[10px]">Calculated $\chi^2$ Statistic</p>
+                                <p id="statValue" class="text-2xl font-bold text-obsidian-highlight">168.099</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-400 text-[10px]">Degrees of Freedom ($\text{df}$)</p>
+                                <p id="statDf" class="text-2xl font-bold text-white">4</p>
+                            </div>
+                        </div>
+                        <div class="pt-2 border-t border-white/10 flex items-center justify-between">
+                            <span class="text-gray-400 text-[11px]">Significance Level:</span>
+                            <span id="statSig" class="px-2.5 py-0.5 rounded-full text-[11px] bg-emerald-500/20 text-emerald-300 font-medium">
+                                $p < 0.001$ (Significant)
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Insight Note -->
+                    <div class="reveal delay-300 p-4 rounded-xl bg-obsidian-light/60 border border-white/5 space-y-1">
+                        <span class="text-[10px] uppercase font-mono tracking-widest text-obsidian-highlight">Bivariate Interpretation</span>
+                        <p id="statInsight" class="text-xs text-gray-300 font-light leading-relaxed">
+                            Poorer quintiles predominantly maintain normal body mass (60.0%), whereas the distribution flips in the richest bracket where 58.1% exhibit nutritional risk (overweight/obesity prevalence)
+                            <button onclick="openCitationTooltip(event)" class="inline-flex items-center justify-center text-[10px] bg-white/20 text-white rounded-full w-3.5 h-3.5 ml-0.5">1</button>.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Interactive Chart Canvas -->
+                <div class="lg:col-span-7 h-80 sm:h-96 relative p-4 rounded-2xl bg-white/5 border border-white/10">
+                    <canvas id="interactiveChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Empirical Determinants Comparison -->
+    <section id="determinants" class="py-28 px-6 lg:px-8 max-w-6xl mx-auto">
+        <div class="space-y-16">
+            <div class="space-y-4">
+                <span class="reveal text-xs tracking-[0.3em] font-semibold uppercase text-obsidian-accent block">03 / Key Determinants</span>
+                <h2 class="reveal delay-100 text-3xl font-light text-obsidian tracking-tight">Socio-Demographic Drivers vs. Invariant Controls</h2>
+                <p class="reveal delay-200 text-xs sm:text-sm text-gray-500 font-light max-w-3xl">
+                    Comparative breakdown between statistically significant determinants ($\alpha = 0.05$) and invariant household control variables tested across the sample
+                    <button onclick="openCitationTooltip(event)" class="inline-flex items-center justify-center text-[10px] bg-slate-200 text-obsidian rounded-full w-4 h-4 ml-0.5 font-mono">1</button>.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 border-t border-gray-100 pt-12">
+                <!-- Significant Determinants Column -->
+                <div class="space-y-8">
+                    <div class="reveal flex items-center justify-between border-b-2 border-obsidian pb-3">
+                        <h3 class="text-xs tracking-widest uppercase font-semibold text-obsidian flex items-center">
+                            <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600 mr-2"></i>
+                            Significant Drivers ($p < 0.001$)
+                        </h3>
+                        <span class="text-[10px] font-mono text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">4 Factors</span>
+                    </div>
+
+                    <div class="space-y-6">
+                        <!-- Factor 1 -->
+                        <div class="reveal p-5 rounded-xl bg-slate-50 border border-slate-200/80 hover:shadow-md transition-shadow">
+                            <div class="flex justify-between items-baseline font-medium text-obsidian text-sm mb-2">
+                                <span>Wealth Index Quintiles</span>
+                                <span class="font-mono text-xs text-obsidian-accent">$\chi^2 = 168.099$</span>
+                            </div>
+                            <p class="text-xs text-gray-600 leading-relaxed font-light">
+                                Strongest overall predictor of BMI variation. While 60.0% of the poorest quintile maintain normal weight, <strong class="text-obsidian">58.1% of the richest quintile fall into nutritional risk</strong> (driven by urban overweight trends)
+                                <button onclick="openCitationTooltip(event)" class="inline-flex items-center justify-center text-[10px] bg-slate-200 text-obsidian rounded-full w-3.5 h-3.5 ml-0.5">1</button>.
+                            </p>
+                        </div>
+
+                        <!-- Factor 2 -->
+                        <div class="reveal delay-100 p-5 rounded-xl bg-slate-50 border border-slate-200/80 hover:shadow-md transition-shadow">
+                            <div class="flex justify-between items-baseline font-medium text-obsidian text-sm mb-2">
+                                <span>Type of Residence</span>
+                                <span class="font-mono text-xs text-obsidian-accent">$\chi^2 = 67.738$</span>
+                            </div>
+                            <p class="text-xs text-gray-600 leading-relaxed font-light">
+                                Rural residents exhibit higher normal BMI prevalence (56.2% vs. 43.8% at-risk). Conversely, <strong class="text-obsidian">urban residents display an inverted risk profile</strong> (52.4% at-risk vs. 47.6% normal)
+                                <button onclick="openCitationTooltip(event)" class="inline-flex items-center justify-center text-[10px] bg-slate-200 text-obsidian rounded-full w-3.5 h-3.5 ml-0.5">1</button>.
+                            </p>
+                        </div>
+
+                        <!-- Factor 3 -->
+                        <div class="reveal delay-200 p-5 rounded-xl bg-slate-50 border border-slate-200/80 hover:shadow-md transition-shadow">
+                            <div class="flex justify-between items-baseline font-medium text-obsidian text-sm mb-2">
+                                <span>Administrative Division</span>
+                                <span class="font-mono text-xs text-obsidian-accent">$\chi^2 = 26.325$</span>
+                            </div>
+                            <p class="text-xs text-gray-600 leading-relaxed font-light">
+                                Metropolitan administrative hubs (Dhaka &amp; Chattogram) carry elevated non-communicable disease risk, whereas agrarian divisions (Mymensingh: 57.6% normal) retain higher baseline normality
+                                <button onclick="openCitationTooltip(event)" class="inline-flex items-center justify-center text-[10px] bg-slate-200 text-obsidian rounded-full w-3.5 h-3.5 ml-0.5">1</button>.
+                            </p>
+                        </div>
+
+                        <!-- Factor 4 -->
+                        <div class="reveal delay-300 p-5 rounded-xl bg-slate-50 border border-slate-200/80 hover:shadow-md transition-shadow">
+                            <div class="flex justify-between items-baseline font-medium text-obsidian text-sm mb-2">
+                                <span>Educational Level</span>
+                                <span class="font-mono text-xs text-obsidian-accent">$\chi^2 = 24.949$</span>
+                            </div>
+                            <p class="text-xs text-gray-600 leading-relaxed font-light">
+                                Higher education correlates with elevated body mass shifts (49.9% at-risk), mediated by sedentary white-collar employment and dietary shifts toward processed calorie intake
+                                <button onclick="openCitationTooltip(event)" class="inline-flex items-center justify-center text-[10px] bg-slate-200 text-obsidian rounded-full w-3.5 h-3.5 ml-0.5">1</button>.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Non-Significant Control Variables Column -->
+                <div class="space-y-8">
+                    <div class="reveal flex items-center justify-between border-b-2 border-gray-300 pb-3">
+                        <h3 class="text-xs tracking-widest uppercase font-semibold text-gray-500 flex items-center">
+                            <i data-lucide="x-circle" class="w-4 h-4 text-gray-400 mr-2"></i>
+                            Non-Significant Controls ($p > 0.05$)
+                        </h3>
+                        <span class="text-[10px] font-mono text-gray-500 bg-gray-100 px-2 py-0.5 rounded">2 Controls</span>
+                    </div>
+
+                    <div class="space-y-6">
+                        <!-- Control 1 -->
+                        <div class="reveal p-5 rounded-xl bg-white border border-gray-200 shadow-sm opacity-90">
+                            <div class="flex justify-between items-baseline font-medium text-gray-700 text-sm mb-2">
+                                <span>Current Working Status</span>
+                                <span class="font-mono text-xs text-gray-500">$\chi^2 = 3.662 \mid p = 0.056$</span>
+                            </div>
+                            <p class="text-xs text-gray-500 leading-relaxed font-light">
+                                Marginal difference between working (54.6% normal) and non-working (52.6% normal) respondents. The relationship did not cross the significance threshold at $\alpha = 0.05$
+                                <button onclick="openCitationTooltip(event)" class="inline-flex items-center justify-center text-[10px] bg-slate-100 text-obsidian rounded-full w-3.5 h-3.5 ml-0.5">1</button>.
+                            </p>
+                        </div>
+
+                        <!-- Control 2 -->
+                        <div class="reveal delay-100 p-5 rounded-xl bg-white border border-gray-200 shadow-sm opacity-90">
+                            <div class="flex justify-between items-baseline font-medium text-gray-700 text-sm mb-2">
+                                <span>Sex of Household Head</span>
+                                <span class="font-mono text-xs text-gray-500">$\chi^2 = 0.699 \mid p = 0.403$</span>
+                            </div>
+                            <p class="text-xs text-gray-500 leading-relaxed font-light">
+                                Male-headed households (85.2% of sample) and female-headed households (14.8%) yielded virtually identical proportional BMI distributions, ruling out headship sex as an independent predictor
+                                <button onclick="openCitationTooltip(event)" class="inline-flex items-center justify-center text-[10px] bg-slate-100 text-obsidian rounded-full w-3.5 h-3.5 ml-0.5">1</button>.
+                            </p>
+                        </div>
+
+                        <!-- Takeaway Note -->
+                        <div class="reveal delay-200 p-5 rounded-xl bg-amber-50/70 border border-amber-200 space-y-2">
+                            <div class="flex items-center space-x-2 text-amber-800 font-medium text-xs">
+                                <i data-lucide="lightbulb" class="w-4 h-4 text-amber-600"></i>
+                                <span>Methodological takeaway</span>
+                            </div>
+                            <p class="text-xs text-amber-900 font-light leading-relaxed">
+                                Household power structures (headship gender) and individual employment status exert negligible influence on adult BMI compared to macro structural variables like wealth tier and urban geography
+                                <button onclick="openCitationTooltip(event)" class="inline-flex items-center justify-center text-[10px] bg-amber-200 text-amber-900 rounded-full w-3.5 h-3.5 ml-0.5">1</button>.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive BMI Predictor Simulator -->
+    <section id="simulator" class="py-28 px-6 lg:px-8 bg-slate-900 text-white relative">
+        <div class="max-w-6xl mx-auto space-y-12">
+            <div class="space-y-3 text-center md:text-left">
+                <span class="reveal text-xs tracking-[0.3em] font-semibold uppercase text-obsidian-highlight block">04 / Dynamic Simulator</span>
+                <h2 class="reveal delay-100 text-3xl sm:text-4xl font-extralight tracking-tight">Interactive Predictive Model Simulator</h2>
+                <p class="reveal delay-200 text-xs sm:text-sm text-gray-400 font-light max-w-2xl">
+                    Adjust age, wealth tier, residence, and education below to calculate predicted BMI using empirical parameters from the BDHS 2022 dataset
+                    <button onclick="openCitationTooltip(event)" class="inline-flex items-center justify-center text-[10px] bg-white/20 text-white rounded-full w-4 h-4 ml-0.5 font-mono">1</button>.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+                <!-- Controls Panel -->
+                <div class="lg:col-span-6 p-6 rounded-2xl bg-white/5 border border-white/10 space-y-6">
+                    <!-- Age Slider -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center text-xs">
+                            <label class="text-gray-300 uppercase tracking-wider font-mono">Respondent Age</label>
+                            <span id="simAgeVal" class="text-base font-bold text-obsidian-highlight font-mono">32 yrs</span>
+                        </div>
+                        <input type="range" id="simAge" min="15" max="49" value="32" oninput="runBMIModel()" 
+                               class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-obsidian-highlight">
+                        <div class="flex justify-between text-[10px] text-gray-500 font-mono">
+                            <span>15 yrs</span>
+                            <span>32 yrs (Mean)</span>
+                            <span>49 yrs</span>
+                        </div>
+                    </div>
+
+                    <!-- Wealth Selection -->
+                    <div class="space-y-2">
+                        <label class="text-xs text-gray-300 uppercase tracking-wider font-mono block">Wealth Quintile</label>
+                        <select id="simWealth" onchange="runBMIModel()" class="w-full bg-slate-800 text-white border border-white/20 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-obsidian-highlight focus:outline-none">
+                            <option value="-1.2">Poorest Quintile</option>
+                            <option value="-0.6">Poorer Quintile</option>
+                            <option value="0.0" selected>Middle Quintile (Baseline)</option>
+                            <option value="0.8">Richer Quintile</option>
+                            <option value="1.8">Richest Quintile</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Residence -->
+                        <div class="space-y-2">
+                            <label class="text-xs text-gray-300 uppercase tracking-wider font-mono block">Residence</label>
+                            <select id="simResidence" onchange="runBMIModel()" class="w-full bg-slate-800 text-white border border-white/20 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-obsidian-highlight focus:outline-none">
+                                <option value="0.0" selected>Rural</option>
+                                <option value="1.1">Urban (+1.10 kg/m²)</option>
+                            </select>
+                        </div>
+                        <!-- Education -->
+                        <div class="space-y-2">
+                            <label class="text-xs text-gray-300 uppercase tracking-wider font-mono block">Education Level</label>
+                            <select id="simEducation" onchange="runBMIModel()" class="w-full bg-slate-800 text-white border border-white/20 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-obsidian-highlight focus:outline-none">
+                                <option value="-0.4">No Formal Education</option>
+                                <option value="0.0" selected>Primary / Secondary</option>
+                                <option value="0.7">Higher Education</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Results Output Display -->
+                <div class="lg:col-span-6 space-y-6">
+                    <div class="p-8 rounded-2xl bg-gradient-to-br from-obsidian-light to-obsidian border border-white/10 text-center space-y-4 relative overflow-hidden">
+                        <div class="absolute -right-8 -bottom-8 w-32 h-32 bg-obsidian-highlight/10 rounded-full blur-2xl"></div>
+                        <span class="text-xs uppercase tracking-widest text-gray-400 font-mono">Predicted Outcome</span>
+                        
+                        <div class="space-y-1">
+                            <p id="simPredictedBMI" class="text-5xl sm:text-6xl font-extrabold text-white font-mono tracking-tight">23.83</p>
+                            <p class="text-xs text-gray-400">Predicted $\text{BMI} \,\, (\text{kg/m}^2)$</p>
+                        </div>
+
+                        <div class="pt-2">
+                            <span id="simCategoryBadge" class="inline-block px-4 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                Normal Weight Range
+                            </span>
+                        </div>
+
+                        <p id="simFormulaText" class="text-[11px] font-mono text-gray-400 border-t border-white/10 pt-4 mt-2">
+                            $\text{Predicted BMI} = 20.724 + (0.097 \times 32) + \text{Controls}$
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Linear Regression & Aging Trajectory Section -->
+    <section id="regression" class="py-28 px-6 lg:px-8 bg-gray-50/70 border-t border-b border-gray-100">
+        <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-16 items-center">
+            
+            <div class="md:col-span-5 space-y-6">
+                <span class="reveal text-xs tracking-[0.3em] font-semibold uppercase text-obsidian-accent block">05 / Predictive Regression</span>
+                <h2 class="reveal delay-100 text-3xl font-light text-obsidian tracking-tight">Quantifying the Biological Impact of Aging</h2>
+                
+                <p class="reveal delay-200 text-xs sm:text-sm font-light text-gray-600 leading-relaxed">
+                    Bivariate Pearson correlation analysis demonstrates a weak but highly significant positive linear relationship between continuous age and Body Mass Index ($r = 0.200, p < 0.001$)
+                    <button onclick="openCitationTooltip(event)" class="inline-flex items-center justify-center text-[10px] bg-slate-200 text-obsidian rounded-full w-4 h-4 ml-0.5 font-mono">1</button>.
+                </p>
+
+                <!-- Equation Display Box -->
+                <div class="reveal delay-300 p-6 bg-white rounded-xl border border-gray-200 shadow-sm space-y-3 font-mono text-xs">
+                    <p class="text-gray-400 uppercase tracking-widest text-[10px]">Univariable Linear Regression Model</p>
+                    <div class="text-base text-obsidian font-bold bg-slate-50 p-3 rounded-lg border border-slate-200 text-center">
+                        $$\text{BMI} = 20.724 + 0.097 \times (\text{Age})$$
+                    </div>
+                    <div class="text-[11px] text-gray-500 font-sans font-light pt-1 space-y-1">
+                        <div class="flex justify-between">
+                            <span>ANOVA Fit ($F$-statistic):</span>
+                            <span class="font-mono text-obsidian font-semibold">$F = 414.231, p < 0.001$</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Slope $t$-test statistic:</span>
+                            <span class="font-mono text-obsidian font-semibold">$t = 20.353, p < 0.001$</span>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="reveal delay-400 text-xs font-light text-gray-500 leading-relaxed">
+                    Interpretation: Each additional year of age increases an individual's Body Mass Index by an average of <strong class="text-obsidian font-medium">0.097 kg/m²</strong> from a predicted statistical baseline intercept of $20.724 \, \text{kg/m}^2$
+                    <button onclick="openCitationTooltip(event)" class="inline-flex items-center justify-center text-[10px] bg-slate-200 text-obsidian rounded-full w-3.5 h-3.5 ml-0.5">1</button>.
+                </p>
+            </div>
+
+            <!-- Regression Chart Canvas -->
+            <div class="md:col-span-7 space-y-4">
+                <div class="reveal p-6 bg-white rounded-2xl border border-gray-200 shadow-sm space-y-4">
+                    <div class="flex justify-between items-center border-b border-gray-100 pb-3">
+                        <h3 class="text-xs font-semibold uppercase tracking-wider text-obsidian">Age vs. Predicted BMI Trajectory (15–49 Years)</h3>
+                        <span class="text-[10px] font-mono text-obsidian-accent bg-slate-100 px-2 py-0.5 rounded">$R^2 = 0.040$</span>
+                    </div>
+                    <div class="h-72 sm:h-80">
+                        <canvas id="regressionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Policy Recommendations Section -->
+    <section id="recommendations" class="py-28 px-6 lg:px-8 max-w-6xl mx-auto">
+        <div class="space-y-16">
+            <div class="space-y-4">
+                <span class="reveal text-xs tracking-[0.3em] font-semibold uppercase text-obsidian-accent block">06 / Policy & Research</span>
+                <h2 class="reveal delay-100 text-3xl font-light text-obsidian tracking-tight">Strategic Public Health Recommendations</h2>
+                <p class="reveal delay-200 text-xs sm:text-sm text-gray-500 font-light max-w-2xl">
+                    Translating empirical biostatistical findings into targeted national public health policy for Bangladesh
+                    <button onclick="openCitationTooltip(event)" class="inline-flex items-center justify-center text-[10px] bg-slate-200 text-obsidian rounded-full w-4 h-4 ml-0.5 font-mono">1</button>.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 border-t border-gray-100 pt-12">
+                
+                <div class="reveal p-6 rounded-2xl bg-white border border-gray-200 shadow-sm space-y-4 hover:border-obsidian/30 transition-all">
+                    <div class="w-10 h-10 rounded-xl bg-obsidian/5 flex items-center justify-center text-obsidian font-mono font-bold text-xs">
+                        01
+                    </div>
+                    <h3 class="text-base font-medium text-obsidian">Dual-Target Health Strategy</h3>
+                    <p class="text-xs font-light text-gray-600 leading-relaxed">
+                        Public health frameworks must pivot away from "one-size-fits-all" programs. Policy should maintain rural food security programs to combat undernutrition while implementing urban lifestyle awareness campaigns targeting overnutrition in affluent wealth tiers
+                        <button onclick="openCitationTooltip(event)" class="inline-flex items-center justify-center text-[10px] bg-slate-100 text-obsidian rounded-full w-3.5 h-3.5 ml-0.5">1</button>.
+                    </p>
+                </div>
+
+                <div class="reveal delay-100 p-6 rounded-2xl bg-white border border-gray-200 shadow-sm space-y-4 hover:border-obsidian/30 transition-all">
+                    <div class="w-10 h-10 rounded-xl bg-obsidian/5 flex items-center justify-center text-obsidian font-mono font-bold text-xs">
+                        02
+                    </div>
+                    <h3 class="text-base font-medium text-obsidian">WHO Standard Disaggregation</h3>
+                    <p class="text-xs font-light text-gray-600 leading-relaxed">
+                        Future epidemiological research should replace binary BMI groupings with full WHO 4-category classification (Underweight, Normal, Overweight, Obese) to explicitly isolate underweight cohorts from overweight/obese populations
+                        <button onclick="openCitationTooltip(event)" class="inline-flex items-center justify-center text-[10px] bg-slate-100 text-obsidian rounded-full w-3.5 h-3.5 ml-0.5">1</button>.
+                    </p>
+                </div>
+
+                <div class="reveal delay-200 p-6 rounded-2xl bg-white border border-gray-200 shadow-sm space-y-4 hover:border-obsidian/30 transition-all">
+                    <div class="w-10 h-10 rounded-xl bg-obsidian/5 flex items-center justify-center text-obsidian font-mono font-bold text-xs">
+                        03
+                    </div>
+                    <h3 class="text-base font-medium text-obsidian">Multivariable Confounder Control</h3>
+                    <p class="text-xs font-light text-gray-600 leading-relaxed">
+                        Future frameworks should execute multivariable ordinal logistic regression models to control for co-dependent socio-demographic confounders, such as the inherent collinearity between wealth index and educational level
+                        <button onclick="openCitationTooltip(event)" class="inline-flex items-center justify-center text-[10px] bg-slate-100 text-obsidian rounded-full w-3.5 h-3.5 ml-0.5">1</button>.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Citation Modal Dialog -->
+    <div id="citeModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm hidden transition-opacity">
+        <div class="p-6 sm:p-8 max-w-lg w-full mx-4 rounded-2xl bg-white shadow-2xl border border-gray-200 space-y-5">
+            <div class="flex justify-between items-center border-b border-gray-100 pb-3">
+                <h3 class="text-sm font-semibold uppercase tracking-wider text-obsidian flex items-center">
+                    <i data-lucide="bookmark" class="w-4 h-4 mr-2 text-obsidian-highlight"></i> Paper Citation Details
+                </h3>
+                <button onclick="toggleCiteModal()" class="text-gray-400 hover:text-obsidian p-1 rounded-lg">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 font-mono text-xs text-slate-700 leading-relaxed select-all" id="citationText">
+                Shakib, S. (2024). <em>Nutritional Status and Socio-Demographic Determinants of Body Mass Index in Bangladesh: An Empirical Analysis of BDHS 2022</em> (Course Code: BTE317). Department of Biotechnology, BRAC University.
+            </div>
+            <div class="flex justify-end space-x-3">
+                <button onclick="copyCitationText()" class="px-4 py-2 text-xs font-medium bg-obsidian text-white rounded-lg hover:bg-obsidian-light transition-colors flex items-center">
+                    <i data-lucide="copy" class="w-3.5 h-3.5 mr-1.5"></i> Copy Citation
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl bg-obsidian text-white text-xs font-medium shadow-xl border border-white/10 hidden transform translate-y-4 transition-all flex items-center space-x-2">
+        <i data-lucide="check" class="w-4 h-4 text-obsidian-highlight"></i>
+        <span id="toastMsg">Copied to clipboard!</span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="py-16 px-6 lg:px-8 border-t border-gray-200 bg-gray-50 text-xs font-light text-gray-500">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="space-y-1 text-center md:text-left">
+                <p class="text-obsidian font-medium">Department of Biotechnology • BRAC University</p>
+                <p>Course: BTE317 - Biostatistics Project | Author: Shadman Shakib (Student ID: 22136032)
+                    <button onclick="openCitationTooltip(event)" class="inline-flex items-center justify-center text-[10px] bg-slate-200 text-obsidian rounded-full w-3.5 h-3.5 ml-0.5">1</button>
+                </p>
+            </div>
+            <div class="flex space-x-6 text-gray-600 font-medium">
+                <a href="https://drive.google.com/file/d/1qNFAFP3UEeqdOSpW6kS-6rKmXWBlcBPf/view?usp=sharing" target="_blank" class="hover:text-obsidian transition-colors flex items-center">
+                    <i data-lucide="file-text" class="w-3.5 h-3.5 mr-1"></i> Paper PDF
+                </a>
+                <a href="https://dhsprogram.com/pubs/pdf/FR386/FR386.pdf" target="_blank" class="hover:text-obsidian transition-colors flex items-center">
+                    <i data-lucide="database" class="w-3.5 h-3.5 mr-1"></i> BDHS 2022 Report
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            initScrollObserver();
+            initCounters();
+            runBMIModel();
+        });
+
+        // Intersection Observer for Reveal Animations
+        function initScrollObserver() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                    }
+                });
+            }, { threshold: 0.12 });
+
+            document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+        }
+
+        // Animated Number Counters
+        function initCounters() {
+            const counters = document.querySelectorAll('.counter');
+            const floatCounters = document.querySelectorAll('.counter-float');
+
+            counters.forEach(counter => {
+                const target = +counter.getAttribute('data-target');
+                let count = 0;
+                const speed = target / 60;
+                const update = () => {
+                    count += speed;
+                    if (count < target) {
+                        counter.innerText = Math.ceil(count).toLocaleString();
+                        setTimeout(update, 20);
+                    } else {
+                        counter.innerText = target.toLocaleString();
+                    }
+                };
+                update();
+            });
+
+            floatCounters.forEach(counter => {
+                const target = +counter.getAttribute('data-target');
+                let count = 0;
+                const speed = target / 50;
+                const update = () => {
+                    count += speed;
+                    if (count < target) {
+                        counter.innerText = count.toFixed(1);
+                        setTimeout(update, 25);
+                    } else {
+                        counter.innerText = target.toFixed(2);
+                    }
+                };
+                update();
+            });
+        }
+
+        const chartDataSets = {
+            wealth: {
+                labels: ['Poorest', 'Poorer', 'Middle', 'Richer', 'Richest'],
+                normal: [60.0, 58.1, 55.8, 52.1, 41.9],
+                atRisk: [40.0, 41.9, 44.2, 47.9, 58.1],
+                chi2: '168.099',
+                df: '4',
+                sig: '$p < 0.001$ (Statistically Significant)',
+                insight: 'Poorer quintiles predominantly maintain normal body mass (60.0%), whereas the distribution flips in the richest bracket where 58.1% exhibit nutritional risk.'
+            },
+            residence: {
+                labels: ['Urban', 'Rural'],
+                normal: [47.6, 56.2],
+                atRisk: [52.4, 43.8],
+                chi2: '67.738',
+                df: '1',
+                sig: '$p < 0.001$ (Statistically Significant)',
+                insight: 'Rural dwellers exhibit 56.2% normal BMI vs. 43.8% at-risk. Urban settings demonstrate a notable shift, with at-risk individuals (52.4%) exceeding normal weight ranks.'
+            },
+            education: {
+                labels: ['No Education', 'Primary', 'Secondary', 'Higher'],
+                normal: [58.5, 54.3, 52.0, 50.1],
+                atRisk: [41.5, 45.7, 48.0, 49.9],
+                chi2: '24.949',
+                df: '3',
+                sig: '$p < 0.001$ (Statistically Significant)',
+                insight: 'Individuals with higher educational attainment reflect higher rates of weight variation (49.9% at-risk), mediated by white-collar occupations and lifestyle shifts.'
+            }
+        };
+
+        const ctxInteractive = document.getElementById('interactiveChart').getContext('2d');
+        let interactiveChart = new Chart(ctxInteractive, {
+            type: 'bar',
+            data: {
+                labels: chartDataSets.wealth.labels,
+                datasets: [
+                    {
+                        label: 'Normal BMI (%)',
+                        data: chartDataSets.wealth.normal,
+                        backgroundColor: '#FFFFFF',
+                        borderRadius: 6,
+                        borderWidth: 0
+                    },
+                    {
+                        label: 'Nutritional Risk (%)',
+                        data: chartDataSets.wealth.atRisk,
+                        backgroundColor: '#48CAE4',
+                        borderRadius: 6,
+                        borderWidth: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: '#D1D5DB', font: { family: 'Inter', weight: '400', size: 11 } }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => `${ctx.dataset.label}: ${ctx.raw}%`
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#9CA3AF', font: { family: 'Inter', size: 11 } },
+                        grid: { display: false }
+                    },
+                    y: {
+                        ticks: { color: '#9CA3AF', font: { family: 'Inter', size: 10 } },
+                        grid: { color: 'rgba(255, 255, 255, 0.08)' },
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        function updateChart(key, btnElement) {
+            const dataset = chartDataSets[key];
+            interactiveChart.data.labels = dataset.labels;
+            interactiveChart.data.datasets[0].data = dataset.normal;
+            interactiveChart.data.datasets[1].data = dataset.atRisk;
+            interactiveChart.update();
+
+            document.getElementById('statValue').innerText = dataset.chi2;
+            document.getElementById('statDf').innerText = dataset.df;
+            document.getElementById('statSig').innerHTML = dataset.sig;
+            document.getElementById('statInsight').innerText = dataset.insight;
+
+            if (window.MathJax) {
+                MathJax.typesetPromise([document.getElementById('chartStatsBox')]);
+            }
+
+            // Update button tab highlights
+            const buttons = document.querySelectorAll('#chartSelector button');
+            buttons.forEach(btn => {
+                btn.className = "px-4 py-2.5 text-xs rounded-lg border border-white/20 text-gray-300 font-medium uppercase tracking-wider hover:border-white hover:text-white transition-all duration-300";
+            });
+            btnElement.className = "px-4 py-2.5 text-xs rounded-lg border border-obsidian-highlight bg-obsidian-highlight/10 text-obsidian-highlight font-medium uppercase tracking-wider transition-all duration-300 active-btn";
+        }
+
+        function runBMIModel() {
+            const age = parseInt(document.getElementById('simAge').value);
+            const wealthAdj = parseFloat(document.getElementById('simWealth').value);
+            const residenceAdj = parseFloat(document.getElementById('simResidence').value);
+            const eduAdj = parseFloat(document.getElementById('simEducation').value);
+
+            document.getElementById('simAgeVal').innerText = `${age} yrs`;
+
+            // Core Regression Model: BMI = 20.724 + (0.097 * Age) + Socioeconomic Adjustments
+            const predicted = 20.724 + (0.097 * age) + wealthAdj + residenceAdj + eduAdj;
+            const bmiVal = predicted.toFixed(2);
+
+            document.getElementById('simPredictedBMI').innerText = bmiVal;
+
+            // Update category badge
+            const badge = document.getElementById('simCategoryBadge');
+            if (predicted < 18.5) {
+                badge.innerText = 'Underweight Range (< 18.5)';
+                badge.className = 'inline-block px-4 py-1.5 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30';
+            } else if (predicted <= 24.9) {
+                badge.innerText = 'Normal Weight Range (18.5 – 24.9)';
+                badge.className = 'inline-block px-4 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+            } else {
+                badge.innerText = 'Overweight / Risk Range (≥ 25.0)';
+                badge.className = 'inline-block px-4 py-1.5 rounded-full text-xs font-semibold bg-rose-500/20 text-rose-300 border border-rose-500/30';
+            }
+
+            document.getElementById('simFormulaText').innerHTML = `$$\\text{Predicted BMI} = 20.724 + (0.097 \\times ${age}) = ${bmiVal} \\,\\text{kg/m}^2$$`;
+
+            if (window.MathJax) {
+                MathJax.typesetPromise([document.getElementById('simFormulaText')]);
+            }
+        }
+
+        const ctxRegression = document.getElementById('regressionChart').getContext('2d');
+        const ageLabels = Array.from({length: 35}, (_, i) => i + 15);
+        const predictedBMI = ageLabels.map(age => (20.724 + 0.097 * age).toFixed(2));
+
+        new Chart(ctxRegression, {
+            type: 'line',
+            data: {
+                labels: ageLabels,
+                datasets: [{
+                    label: 'Predicted BMI (kg/m²)',
+                    data: predictedBMI,
+                    borderColor: '#0B132B',
+                    backgroundColor: 'rgba(11, 19, 43, 0.04)',
+                    borderWidth: 2,
+                    pointRadius: 2,
+                    pointBackgroundColor: '#48CAE4',
+                    pointHoverRadius: 6,
+                    fill: true,
+                    tension: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => `Age ${ctx.label} yrs: Predicted BMI ${ctx.raw} kg/m²`
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Respondent Age (Years)', color: '#4B5563', font: { size: 11, weight: '500' } },
+                        ticks: { color: '#6B7280', font: { size: 10 } },
+                        grid: { display: false }
+                    },
+                    y: {
+                        title: { display: true, text: 'BMI (kg/m²)', color: '#4B5563', font: { size: 11, weight: '500' } },
+                        ticks: { color: '#6B7280', font: { size: 10 } },
+                        grid: { color: '#E5E7EB' },
+                        min: 20,
+                        max: 27
+                    }
+                }
+            }
+        });
+
+        function toggleCiteModal() {
+            const modal = document.getElementById('citeModal');
+            modal.classList.toggle('hidden');
+        }
+
+        function copyCitationText() {
+            const text = document.getElementById('citationText').innerText;
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+
+            showToast('Citation copied to clipboard!');
+            toggleCiteModal();
+        }
+
+        function openCitationTooltip(e) {
+            e.stopPropagation();
+            showToast('BDHS 2022 Survey Dataset (N = 9,946, Course BTE317)');
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            toast.classList.remove('hidden');
+            toast.classList.remove('translate-y-4');
+            setTimeout(() => {
+                toast.classList.add('translate-y-4');
+                toast.classList.add('hidden');
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
