@@ -3,7 +3,7 @@
 
 # Socio-Demographic Determinants of BMI in Bangladesh (BDHS 2022)
 
-[![License: SHADMAN SHAKIB](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 [![BRAC University](https://img.shields.io/badge/BRAC%20University-BTE317-0B132B)](https://www.bracu.ac.bd/)
 [![Dataset](https://img.shields.io/badge/Dataset-BDHS%202022-48CAE4)](https://dhsprogram.com/pubs/pdf/FR386/FR386.pdf)
 
